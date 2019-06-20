@@ -3,10 +3,18 @@ package com.tensquare.base.service;
 import com.tensquare.base.dao.LabelDao;
 import com.tensquare.base.pojo.Label;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import utils.IdWorker;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,7 +41,7 @@ public class LabelService {
     }
 
     public void save(Label label) {
-        label.setId(idWorker.nextId()+"");
+        label.setId(idWorker.nextId() + "");
         labelDao.save(label);
     }
 
@@ -43,5 +51,61 @@ public class LabelService {
 
     public void deleteById(String id) {
         labelDao.deleteById(id);
+    }
+
+    public List<Label> findSearch(Label label) {
+        return labelDao.findAll(new Specification<Label>() {
+            /**
+             * @param root: 根对象，也就是要把条件封装到哪个对象中。 where 列名 = label.getId
+             * @param criteriaQuery: 封装的都是查询条件关键字，比如group by，order by等
+             * @param criteriaBuilder: 封装条件对象
+             * @return: javax.persistence.criteria.Predicate
+             */
+            @Override
+            public Predicate toPredicate(Root<Label> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                List<Predicate> list = new ArrayList<>();
+                if (null != label.getLabelname() && !"".equals(label.getLabelname())) {
+                    //  where labelname like "%xxx%"
+                    Predicate predicate = criteriaBuilder.like(root.get("labelname").as(String.class), "%" + label.getLabelname() + "%");
+                    list.add(predicate);
+                }
+                if (null != label.getState() && !"".equals(label.getState())) {
+                    //  where state = "xxx"
+                    Predicate predicate = criteriaBuilder.equal(root.get("state").as(String.class), label.getState());
+                    list.add(predicate);
+                }
+
+                Predicate[] predicates = new Predicate[list.size()];
+                Predicate[] parr = list.toArray(predicates);
+                //  where labelname like "%xxx%" and state = "xxx"
+                return criteriaBuilder.and(parr);
+            }
+
+        });
+    }
+
+    public Page<Label> pageQuery(Label label, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page - 1, size);
+        return labelDao.findAll(new Specification<Label>() {
+            @Override
+            public Predicate toPredicate(Root<Label> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                List<Predicate> list = new ArrayList<>();
+                if (null != label.getLabelname() && !"".equals(label.getLabelname())) {
+                    //  where labelname like "%xxx%"
+                    Predicate predicate = criteriaBuilder.like(root.get("labelname").as(String.class), "%" + label.getLabelname() + "%");
+                    list.add(predicate);
+                }
+                if (null != label.getState() && !"".equals(label.getState())) {
+                    //  where state = "xxx"
+                    Predicate predicate = criteriaBuilder.equal(root.get("state").as(String.class), label.getState());
+                    list.add(predicate);
+                }
+
+                Predicate[] predicates = new Predicate[list.size()];
+                Predicate[] parr = list.toArray(predicates);
+                //  where labelname like "%xxx%" and state = "xxx"
+                return criteriaBuilder.and(parr);
+            }
+        }, pageRequest);
     }
 }
