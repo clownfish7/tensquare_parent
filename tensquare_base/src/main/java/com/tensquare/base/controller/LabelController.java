@@ -43,7 +43,7 @@ public class LabelController {
 
     @RequestMapping(value = "/{labelId}", method = RequestMethod.PUT)
     public Result update(@PathVariable("labelId") String labelId, @RequestBody Label label) {
-        labelService.save(label);
+        labelService.update(label);
         return new Result(StatusCode.OK, true, "更新成功");
     }
 

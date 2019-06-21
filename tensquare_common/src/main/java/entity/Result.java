@@ -30,6 +30,20 @@ public class Result {
         this.data = data;
     }
 
+    public Result(Boolean flag, Integer code, String message) {
+
+        this.code = code;
+        this.flag = flag;
+        this.message = message;
+    }
+
+    public Result(Boolean flag, Integer code, String message, Object data) {
+        this.code = code;
+        this.flag = flag;
+        this.message = message;
+        this.data = data;
+    }
+
     public Integer getCode() {
 
         return code;
