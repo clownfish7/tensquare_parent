@@ -7,6 +7,7 @@ import entity.Result;
 import entity.StatusCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -22,6 +23,8 @@ public class SpitController {
 
     @Autowired
     private SpitService spitService;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * 增加
@@ -86,7 +89,14 @@ public class SpitController {
 
     @RequestMapping(value = "/thumbup/{spitId}", method = RequestMethod.PUT)
     public Result thumbup(@PathVariable String spitId) {
+
+        String userid="2023";
+        if (redisTemplate.opsForValue().get("thumbup_"+userid+"_id") !=null) {
+            return new Result(StatusCode.ERROR, false, "已点过赞");
+        }
+
         spitService.thumbup(spitId);
+        redisTemplate.opsForValue().set("thumbup_"+userid+"_id", "1");
         return new Result(StatusCode.OK, true, "点赞成功");
     }
 }
