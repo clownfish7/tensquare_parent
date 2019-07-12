@@ -19,3 +19,11 @@ jwt:
   config:
     key: mysalt
     ttl: 3600000
+eureka:
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:8001/eureka/
+  instance:
+    # 将Instance ID设置成IP:端口的形式
+    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port}
+    prefer-ip-address: true #访问路径可以显示IP地址
