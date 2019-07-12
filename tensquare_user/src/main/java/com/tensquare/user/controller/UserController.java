@@ -24,6 +24,16 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @RequestMapping(value = "/login", method = RequestMethod.POST)
+    public Result login(@RequestBody User user) {
+        user = userService.login(user);
+        if (user ==null) {
+            return new Result(StatusCode.LOGINERROR, false, "登陆失败");
+        }
+        // TODO 采用前后端可通话的操作 使用JWT来实现。
+        return new Result(StatusCode.OK, true, "登陆成功");
+    }
+
     /**
      * 发送短信验证码
      *
@@ -107,7 +117,7 @@ public class UserController {
     }
 
     /**
-     * 删除
+     * 删除 必须要admin角色才能删除
      *
      * @param id
      */

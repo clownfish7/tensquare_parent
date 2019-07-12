@@ -7,7 +7,9 @@ import entity.StatusCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
+import util.JwtUtil;
 
+import java.util.HashMap;
 import java.util.Map;
 /**
  * 控制器层
@@ -21,8 +23,25 @@ public class AdminController {
 
 	@Autowired
 	private AdminService adminService;
-	
-	
+
+	@Autowired
+	private JwtUtil jwtUtil;
+
+
+	@RequestMapping(value = "/login", method = RequestMethod.POST)
+	public Result login(@RequestBody Admin admin) {
+		admin = adminService.login(admin);
+		if (admin == null) {
+			return new Result(StatusCode.LOGINERROR, false, "登陆失败");
+		}
+		// 采用前后端可通话的操作 使用JWT来实现。
+		String token = jwtUtil.createJWT(admin.getId(), admin.getLoginname(), "admin");
+		Map<String, Object> map =  new HashMap<>();
+		map.put("token", token);
+		map.put("role", "admin");
+		return new Result(StatusCode.OK, true, "登陆成功", map);
+	}
+
 	/**
 	 * 查询全部数据
 	 * @return

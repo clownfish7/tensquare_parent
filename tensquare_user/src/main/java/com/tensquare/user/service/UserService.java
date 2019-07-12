@@ -8,13 +8,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import util.IdWorker;
+import util.JwtUtil;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -37,6 +40,15 @@ public class UserService {
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Autowired
+    private HttpServletRequest request;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     /**
      * 发送短信验证码
@@ -116,6 +128,7 @@ public class UserService {
      */
     public void add(User user) {
         user.setId(idWorker.nextId() + "");
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userDao.save(user);
     }
 
@@ -134,6 +147,28 @@ public class UserService {
      * @param id
      */
     public void deleteById(String id) {
+//        String header = request.getHeader("Authorization");
+//        if (header == null || "".equals(header)) {
+//            throw new RuntimeException("权限不足");
+//        }
+//        if (!header.startsWith("Bearer ")) {
+//            throw new RuntimeException("权限不足");
+//        }
+        String token = (String)request.getAttribute("claims_admin");
+
+//        try {
+//            Claims claims = jwtUtil.parseJWT(token);
+//            String roles = (String) claims.get("roles");
+//            if (roles == null || !"admin".equals(roles)) {
+//                throw new RuntimeException("权限不足");
+//            }
+//        } catch (Exception e) {
+//            throw new RuntimeException("权限不足");
+//        }
+
+        if (token == null || "".equals(token)) {
+            throw new RuntimeException("权限不足");
+        }
         userDao.deleteById(id);
     }
 
@@ -194,4 +229,15 @@ public class UserService {
 
     }
 
+
+    public User login(User user) {
+        // 先根据用户名查询对象
+        User login = userDao.findByMobile(user.getMobile());
+        // 然后拿数据库密码和用户输入密码匹配是否相同
+        if (login!=null && bCryptPasswordEncoder.matches(user.getPassword(), login.getPassword())) {
+            return login;
+        }
+        // 登录失败
+        return null;
+    }
 }

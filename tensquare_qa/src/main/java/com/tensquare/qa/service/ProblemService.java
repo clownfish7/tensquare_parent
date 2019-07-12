@@ -14,6 +14,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,9 @@ public class ProblemService {
 	
 	@Autowired
 	private IdWorker idWorker;
+
+	@Autowired
+	private HttpServletRequest request;
 
 	/**
 	 * 根据标签ID查询最新问题列表
@@ -111,6 +115,10 @@ public class ProblemService {
 	 */
 	public void add(Problem problem) {
 		problem.setId( idWorker.nextId()+"" );
+		String token = (String) request.getAttribute("claims_user");
+		if (token == null || token.equals("")) {
+			throw new RuntimeException("权限不足!");
+		}
 		problemDao.save(problem);
 	}
 
