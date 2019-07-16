@@ -8,7 +8,9 @@ import entity.StatusCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
+import util.JwtUtil;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -24,14 +26,32 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    /**
+     * 更新粉丝数和关注数
+     *
+     * @param userid
+     * @param friendid
+     */
+    @PutMapping("/{userid}/{friendid}/{x}")
+    public void updateFansAndFollowCount(@PathVariable String userid, @PathVariable String friendid, @PathVariable int x) {
+        userService.updateFansAndFollowCount(x, userid, friendid);
+    }
+
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public Result login(@RequestBody User user) {
         user = userService.login(user);
-        if (user ==null) {
+        if (user == null) {
             return new Result(StatusCode.LOGINERROR, false, "登陆失败");
         }
         // TODO 采用前后端可通话的操作 使用JWT来实现。
-        return new Result(StatusCode.OK, true, "登陆成功");
+        String token = jwtUtil.createJWT(user.getId(), user.getMobile(), "user");
+        Map<String, Object> map = new HashMap<>();
+        map.put("token", token);
+        map.put("roles", "user");
+        return new Result(true, StatusCode.OK, "登录成功", map);
     }
 
     /**

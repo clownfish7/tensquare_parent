@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import util.IdWorker;
 import util.JwtUtil;
 
@@ -239,5 +240,11 @@ public class UserService {
         }
         // 登录失败
         return null;
+    }
+
+    @Transactional
+    public void updateFansAndFollowCount(int x, String userid, String friendid) {
+        userDao.updateFansCount(x, friendid);
+        userDao.updateFollowCount(x, userid);
     }
 }

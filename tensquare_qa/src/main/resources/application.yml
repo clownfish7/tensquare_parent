@@ -5,7 +5,7 @@ spring:
     name: tensquare-qa #指定服务名
   datasource:  
     driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://172.17.215.130:3306/tensquare_qa?useUnicode=true&characterEncoding=UTF8
+    url: jdbc:mysql://172.17.215.135:3306/tensquare_qa?useUnicode=true&characterEncoding=UTF8
     username: root
     password: root
   jpa: 
@@ -18,3 +18,9 @@ jwt:
   config:
     key: mysalt
     ttl: 3600000
+eureka:
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:8001/eureka/
+  instance:
+    prefer-ip-address: true

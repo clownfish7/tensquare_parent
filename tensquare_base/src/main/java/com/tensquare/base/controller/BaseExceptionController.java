@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * @description TODO
  * @create 2019-06-20 17:15
  */
+
 @RestControllerAdvice
 public class BaseExceptionController {
 
