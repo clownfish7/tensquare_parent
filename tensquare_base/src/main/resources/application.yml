@@ -12,6 +12,8 @@ spring:
     database: mysql
     show-sql: true
     generate-ddl: true
+  rabbitmq:
+    host: 172.17.215.5
 jwt:
   config:
     key: mysalt

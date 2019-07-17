@@ -2,7 +2,7 @@ package com.tensquare.qa.client;
 
 import entity.Result;
 import entity.StatusCode;
-import feign.hystrix.FallbackFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * @author yzy
@@ -10,15 +10,11 @@ import feign.hystrix.FallbackFactory;
  * @description TODO
  * @create 2019-07-16 14:20
  */
-public class BaseClientFallbackFactory implements FallbackFactory<BaseClient> {
+@Component // 不要忘记添加，不要忘记添加
+public class BaseClientFallbackFactory implements BaseClient {
 
     @Override
-    public BaseClient create(Throwable throwable) {
-        return new BaseClient() {
-            @Override
-            public Result findById(String labelId) {
-                return new Result(StatusCode.ERROR,false,"error");
-            }
-        };
+    public Result findById(String labelId) {
+        return new Result(StatusCode.ERROR,false,"熔断器hystrix");
     }
 }

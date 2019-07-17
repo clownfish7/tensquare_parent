@@ -6,6 +6,8 @@ import entity.PageResult;
 import entity.Result;
 import entity.StatusCode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,20 +21,25 @@ import java.util.List;
  */
 @RestController
 @CrossOrigin
+@RefreshScope
 @RequestMapping("/label")
 public class LabelController {
 
     @Autowired
     private LabelService labelService;
 
+    @Value("${ip}")
+    private String ip;
+
     @RequestMapping(method = RequestMethod.GET)
     public Result findAll() {
+        System.out.println("ip " + ip);
         return new Result(StatusCode.OK, true, "查询成功", labelService.findAll());
     }
 
     @RequestMapping(value = "/{labelId}", method = RequestMethod.GET)
     public Result findById(@PathVariable("labelId") String labelId) {
-        int i = 1/0;
+//        int i = 1/0;
         return new Result(StatusCode.OK, true, "查询成功", labelService.findById(labelId));
     }
 
